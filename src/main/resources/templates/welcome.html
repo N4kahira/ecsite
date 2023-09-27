@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymeleaf.org">
+ 
+<meta charset="UTF-8">
+<link href="/css/style.css" rel="stylesheet" />
+<title>Insert title here</title>
+
+<script>
+ 
+  
+  
+  document.addEventListener("DOMContentLoaded", event => {
+   
+   const deleteBtns = document.querySelectorAll(".deleteBtn");
+
+  deleteBtns.forEach(btn => {
+ 
+   btn.addEventListener("click",event => {
+     let isOk = confirm("削除してもよろしいですか？");
+     if ( !isOk ) { return; }
+  
+     
+     const tdList = event.target.parentElement.parentElement.querySelectorAll("td");
+    
+     deleteGoods(tdList);
+   
+     
+   });
+ });
+ 
+  });
+  
+  function deleteGoods(tdList){
+
+  const postObj = { "id" : tdList.item(0).innerText };
+  
+  fetch("/ecsite/admin/api/deleteGoods", {
+   
+    method: "POST",
+    headers: {'Content-Type':"application/json"},
+    body: JSON.stringify(postObj),
+     })
+    .then(response => response.text())
+    .then(result => {
+      
+      alert(`商品[ ${tdList.item(1).innerText} ]を削除しました。`);
+      tdList.item(0).parentElement.remove();
+      
+    })
+    .catch(error => {
+      console.error("Error:",error);
+      
+    });
+    }
+ </script>
+  
+</head>
+<body>
+
+<header>
+  <h1>EC Site --管理者ページ</h1>
+</header>
+  <table id="adminTable">
+    <thead>
+      <tr>
+       <th>ID</th><th>商品名</th><th>価格</th><th>削除</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="item:${goods}">
+        <td th:text="${item.id}" />
+        <td th:text="${item.goodsName}"/>
+        <td th:text="${item.price}" />
+        <td><button type="submit" class="deleteBtn">削除</button></td>
+      </tr>
+    </tbody>
+  </table>
+    <form name="goodsForm" id="adminPage" method="post" action="/ecsite/admin/goodsMst">
+    
+    <button type="submit" th:if="${userName != null}" >新商品追加</button>
+    <input type="hidden" name="userName" th:value="${userName}" />
+    <input type="hidden" name="password" th:value="${password}" />
+    
+    </form>
+    
+
+</body>
+</html>
